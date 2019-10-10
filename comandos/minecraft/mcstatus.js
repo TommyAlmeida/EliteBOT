@@ -1,29 +1,29 @@
 const Discord = require('discord.js');
-const fs = require('fs');
 var request = require('request');
-const send = require('quick.hook');
 
 module.exports.run = async (client, message, args) => {
-    serverr = args[1];
-    let url = "http://mcapi.us/server/status?ip=" + serverr;
+    server = args[0];
+    let url = "http://mcapi.us/server/status?ip=" + server;
     request(url, function (err, response, body) {
 
-        if (!serverr) return message.reply("um erro aconteceu, insira um ip valido!")
-        var status = "Offline";
-        if (body.online) {
-            status = "Online";
-        }
+        if (!server) return message.reply("um erro aconteceu, insira um ip valido!").then(msg => msg.delete(2000))
 
-        // PC Ping
         body = JSON.parse(body);
+        if(body.error == "invalid hostname or port") return message.reply("insira um IP valido.").then(msg => msg.delete(2000))
+        const mensagem = {
+            true: '✔️ Online',
+            false: '❌ Offline'
+        };
+        const status = mensagem[body.online];
+
 
         let embed = new Discord.RichEmbed()
-            .setAuthor(`${serverr}`, `https://mcapi.de/api/image/favicon/${serverr}`)
-            .setThumbnail(`https://mcapi.de/api/image/favicon/${serverr}`)
-            .addField("🎲 Versão:", body.server.name, true)
-            .addField("🚀 Motd:", body.motd, true)
-            .addField("🥊 Status:", body.online)
-            .addField("🏵 Jogadores online:", body.players.now + "/" + body.players.max, true)
+            .setAuthor(`${server}`, `https://eu.mc-api.net/v3/server/favicon/${server}`)
+            .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${server}`)
+            .addField("Versão:", body.server.name, true)
+            .addField("MOTD:", body.motd, true)
+            .addField("Status:", status)
+            .addField("Jogadores online:", body.players.now + "/" + body.players.max, true)
             .setFooter(message.author.username, message.author.displayAvatarURL)
             .setTimestamp()
         message.channel.send(embed)

@@ -34,6 +34,5 @@ exports.run = async (client, message, args) => {
 };
 
 exports.help = {
-    name: 'hex',
-    aliases: ['cor']
+    name: 'hex'
 };
