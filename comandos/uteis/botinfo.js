@@ -2,6 +2,7 @@ const Discord = require('discord.js')
 const c = require('../config.json')
 
 const moment = require('moment')
+require("moment-duration-format")
 moment.locale('pt-br')
 exports.run = (client, message, args) => {
 
@@ -9,14 +10,7 @@ exports.run = (client, message, args) => {
   let date = client.user.createdAt
   let userName = client.user.username
 
-  let totalSeconds = (client.uptime / 1000);
-  let days = Math.floor(totalSeconds / 86400);
-  let hours = Math.floor(totalSeconds / 3600);
-  totalSeconds %= 3600;
-  let minutes = Math.floor(totalSeconds / 60);
-  let seconds = totalSeconds % 60;
-
-  let uptime = `${days} dias, ${hours} horas, ${minutes} minutos e ${seconds} segundos`;
+  let uptime = moment.duration(client.uptime).format('D[d] H[h] m[m] e s[s]');
 
   // Criando embed que sera enviado para o usuário
   let embed = new Discord.RichEmbed()
