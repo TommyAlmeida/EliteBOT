@@ -2,11 +2,14 @@ const timexp = new Set()
 exports.name = 'message';
 exports.run = (client, message) => {
     if (message.author.bot) return;
+
     if (timexp.has(message.author.id)) return;
+
     timexp.add(message.author.id)
     setTimeout(() => {
         timexp.delete(message.author.id)
     }, 5000);
+
     client.Database.Users.findOne({
         "_id": message.author.id
     }, function (erro, documento) {
@@ -33,5 +36,15 @@ exports.run = (client, message) => {
     if (["discord.gg/", "discordapp.com/invite/", "invite.gg/", "discord.io/", "discord.me/", "discord.plus/", "dis.gd/"].some(invite => message.content.includes(invite) && !message.content.includes("https://discord.gg/EhjgQ24"))) {
         message.delete().then(message.channel.send(`${message.author} você não pode enviar links de outros servidores aqui!`).then(msg => msg.delete(8000)))
     }
+
+    if (message.content.toLowerCase() === 'boa noite') {
+		message.channel.send(`Boa noite ${message.author}!`);
+	}
+	if (message.content.toLowerCase() === 'bom dia') {
+		message.channel.send(`Bom dia ${message.author}!`);
+	}
+	if (message.content.toLowerCase() === 'boa tarde') {
+		message.channel.send(`Boa tarde ${message.author}!`);
+	}
 
 }
