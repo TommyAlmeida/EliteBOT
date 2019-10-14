@@ -1,22 +1,24 @@
+const c = require('../comandos/config.json')
+
 exports.name = 'MessageReactionAdd';
 exports.run = async (messageReaction, user) => {
     if (messageReaction.message.partial) await messageReaction.message.fetch();
 
-    if (messageReaction.message.channel.type !== "text" || !messageReaction.message.guild || !messageReaction.message.guild.available) return;
-    if (messageReaction.emoji.name !== "📍") return;
+    if (!messageReaction.message.channel.type === "text" || !messageReaction.message.guild || !messageReaction.message.guild.available) return;
+    if (!messageReaction.emoji.name === "📍") return;
 
     const settings = messageReaction.message.guild.settings = await messageReaction.message.guild.fetchSettings();
 
-    if (!settings.starboard.id) return;
-    if (settings.ignored.stars.includes('632769386855530509')) return;
+    if (!c.highlightChannel) return;
+    if (settings.ignored.stars.includes(messageReaction.message.channel.id)) return;
 
     let count = messageReaction.count;
-    if (messageReaction.users.get('632769386855530509')) count--;
+    if (messageReaction.users.get(messageReaction.message.author.id)) count--;
 
     if (count < settings.starboard.count) return;
-    if (!messageReaction.message.guild.channels.has('632769386855530509')) return;
+    if (!messageReaction.message.guild.channels.has(c.highlightChannel)) return;
 
-    const channel = messageReaction.message.guild.channels.get('632769386855530509');
+    const channel = messageReaction.message.guild.channels.get(c.highlightChannel);
 
     const messages = await channel.messages.fetch({
         limit: 100
@@ -26,11 +28,12 @@ exports.run = async (messageReaction, user) => {
     if (boardMsg) {
         const image = boardMsg.embeds[0] ? boardMsg.embeds[0].image ? boardMsg.embeds[0].image.proxyURL ? boardMsg.embeds[0].image.proxyURL : null : null : null;
 
-        const embed = new MessageEmbed()
+        const embed = new RichEmbed()
             .setColor('RANDOM')
-            .addField("Usuário", `<@!${messageReaction.message.author.id}>`, true)
+            .addField("Autor", `<@!${messageReaction.message.author.id}>`, true)
             .addField("Canal", `<#${messageReaction.message.channel.id}>`, true)
-            .setThumbnail(messageReaction.message.author.avatarURL)
+            .addField("Message", messageReaction.message.content, false)
+            .setThumbnail(messageReaction.message.author.avatarURL("png", 2048))
             .setTimestamp(messageReaction.message.createdAt)
             .setFooter(`📍 ${count} | ${messageReaction.message.id}`);
 
@@ -46,10 +49,11 @@ exports.run = async (messageReaction, user) => {
     } else {
         const image = messageReaction.message.attachments.size > 0 ? messageReaction.message.attachments.array()[0].url : null;
 
-        const embed = new MessageEmbed()
-            .setColor('RANDOM')
-            .addField("Usuário", `<@!${messageReaction.message.author.id}>`, true)
+        const embed = new RichEmbed()
+            .setColor('RANDOM   ')
+            .addField("Autor", `<@!${messageReaction.message.author.id}>`, true)
             .addField("Canal", `<#${messageReaction.message.channel.id}>`, true)
+            .addField("Message", messageReaction.message.content, false)
             .setThumbnail(messageReaction.message.author.avatarURL("png", 2048))
             .setTimestamp(messageReaction.message.createdAt)
             .setFooter(`📍 ${count} | ${messageReaction.message.id}`);
@@ -57,7 +61,7 @@ exports.run = async (messageReaction, user) => {
         if (image) {
             embed.setImage(image);
         } else {
-            embed.addField("Mensagem", messageReaction.message.content, false);
+            embed.addField("Message", messageReaction.message.content, false);
         }
 
         channel.send({

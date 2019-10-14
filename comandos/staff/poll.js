@@ -1,39 +1,52 @@
-const Discord = require('discord.js');
+const Discord = require('discord.js')
 
-exports.run = async (client, message, args, ops) => {
+const agree = "👍";
+const disagree = "👎";
 
-    if (!message.member.hasPermission("ADMINISTRATOR")) return message.channel.send(`${message.author}, você não possui permissão para executar esse comando.`).then(msg => msg.delete(8000))
+exports.run = async (client, message, args) => {
+    if (!args || args[0] === 'ajuda') return message.reply("use `!enquete <pergunta>`.")
 
-    // Check for input
-    if (!args[0]) return message.channel.send('Uso correto: !enquete <pergunta>');
+    let embed = new Discord.RichEmbed()
 
-    // Create Embed
-    const embed = new Discord.RichEmbed()
-    
-        .setColor("RANDOM") //To change color do .setcolor("#fffff")
+        .setColor("RANDOM")
         .setTitle('Votação criada, reaja para votar')
-        .setDescription(args.join(' '))
+        .setDescription(message.content.split(" ").splice(1).join(" "))
         .setFooter(`Enquete criada por ${message.author.username}`)
         .setTimestamp()
-        client.channels.get(`622291133782818826`).send('<@625528878655340554>').then(msg => msg.delete(5000))
+    client.channels.get(`633171474567528458`).send(embed).then(async msg => {
 
-    let msg = await client.channels.get(`622291133782818826`).send(embed)
+        msg.react(agree);
+        msg.react(disagree);
 
-        .then(function (msg) {
-            msg.react("👍");
-            msg.react("👎"); // You can only add two reacts
-            message.delete({
-                timeout: 1000
-            });
-        }).catch(function (error) {
-            console.log(error);
+        const reactions = await msg.awaitReactions(reaction => reaction.emoji.name === agree || reaction.emoji.name === disagree, {
+            time: 100
         });
+        msg.delete();
 
-};
+        var disagreeCount = reactions.get(disagree).count;
+        if (disagreeCount == undefined) {
+            var disagreeCount = 1;
+        } else {
+            var disagreeCount = reactions.get(disagree).count;
+        }
 
+        var agreeCount = reactions.get(agree);
+        if (agreeCount == undefined) {
+            var agreeCount = 1;
+        } else {
+            var agreeCount = reactions.get(agree).count;
+        }
+
+        var results = new Discord.RichEmbed()
+            .setColor("RANDOM")
+            .setTitle('Votação finalizada')
+            .addField(`${message.content.split(" ").splice(1).join(" ")}`, `👍 ${agreeCount-1} \n 👎 ${disagreeCount}`)
+            .setFooter(`Enquete criada por ${message.author.username}`)
+            .setTimestamp()
+        await message.channel.send(results);
+    })
+}
 
 exports.help = {
-    name: 'enquete',
-    description: 'Cria uma enquete com UP ou DOWN',
-    usage: 'enquete <pergunta>'
+    name: 'enquete'
 };

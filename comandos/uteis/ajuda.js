@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const c = require('../config.json')
 
 module.exports.run = async (client, message, args) => {
-    message.delete()
 
     const erros = new Discord.RichEmbed()
         .setAuthor("Elite dos Desenvolvedores - Erro", client.user.avatarURL)
