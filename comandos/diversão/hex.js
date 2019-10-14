@@ -12,7 +12,7 @@ exports.run = async (client, message, args) => {
         .get(`https://api.alexflipnote.dev/color/` + args[0]);
 
     const embed = new Discord.RichEmbed()
-        .setColor(`#${body.hex}`)
+        .setColor(body.hex)
         .setTitle(body.name)
         .addField("Hex:", body.hex)
         .addField("RGB:", body.rgb)
