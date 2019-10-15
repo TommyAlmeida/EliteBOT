@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const config = require('../config');
+const config = require('../config').default;
 
 const cooldown = new Map();
 const queue = new Map();

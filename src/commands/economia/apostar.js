@@ -1,4 +1,4 @@
-var database = require("../../database.js")
+var database = require("../../backend/database.js/index.js")
 
 exports.run = (client, message, args) => {
 

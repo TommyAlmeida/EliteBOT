@@ -2,7 +2,7 @@ module.exports = [
      {
          name: 'guildMemberAdd',
          run: (client, member) => {
-             var numbertowords = require('number-to-words');
+             var numbertowords = require('../commands/diversão/node_modules/number-to-words');
              var membersCount = `${client.guilds.get('622160862605737990').memberCount}`;
              var membersArray = new Array();
              var membersSplit = membersCount.split("");
@@ -19,7 +19,7 @@ module.exports = [
      }, {
          name: 'guildMemberRemove',
          run: (client, member) => {
-             var numbertowords = require('number-to-words');
+             var numbertowords = require('../commands/diversão/node_modules/number-to-words');
              var membersCount = `${client.guilds.get('622160862605737990').memberCount}`;
              var membersArray = new Array();
              var membersSplit = membersCount.split("");

@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 
-const Database = require('../../database.js');
+const Database = require('../../backend/database.js/index.js');
 
 exports.run = (client, message, args) => {
     let user = message.mentions.users.first() ? message.mentions.users.first() : message.author

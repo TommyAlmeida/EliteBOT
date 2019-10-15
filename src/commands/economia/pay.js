@@ -1,5 +1,5 @@
 const Discord = require("discord.js")
-const Database = require('../../database.js')
+const Database = require('../../backend/database.js/index.js')
 
 exports.run = async (client, message, args) => {
   

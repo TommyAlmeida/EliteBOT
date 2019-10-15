@@ -1,4 +1,4 @@
-const Database = require("../../database.js");
+const Database = require("../../backend/database.js/index.js");
 const Discord = require('discord.js')
 
 exports.run = (client, message) => {
