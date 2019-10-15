@@ -1,50 +1,80 @@
 const Discord = require('discord.js')
 
-const agree = "👍";
-const disagree = "👎";
-
 exports.run = async (client, message, args) => {
-    if (!args || args[0] === 'ajuda') return message.reply("use `!enquete <pergunta>`.")
+    let razaou = args.slice(0).join(' ');
 
-    let embed = new Discord.RichEmbed()
+    if (!message.member.hasPermission(["ADMINISTRATOR"])) return message.reply("você não tem permissão para isso.");
 
-        .setColor("RANDOM")
-        .setTitle('Votação criada, reaja para votar')
-        .setDescription(message.content.split(" ").splice(1).join(" "))
-        .setFooter(`Enquete criada por ${message.author.username}`)
-        .setTimestamp()
-    client.channels.get(`633171474567528458`).send(embed).then(async msg => {
+    if (!razaou.length < 1) {
 
-        msg.react(agree);
-        msg.react(disagree);
-
-        const reactions = await msg.awaitReactions(reaction => reaction.emoji.name === agree || reaction.emoji.name === disagree, {
-            time: 100
-        });
-        msg.delete();
-
-        var disagreeCount = reactions.get(disagree).count;
-        if (disagreeCount == undefined) {
-            var disagreeCount = 1;
-        } else {
-            var disagreeCount = reactions.get(disagree).count;
-        }
-
-        var agreeCount = reactions.get(agree);
-        if (agreeCount == undefined) {
-            var agreeCount = 1;
-        } else {
-            var agreeCount = reactions.get(agree).count;
-        }
-
-        var results = new Discord.RichEmbed()
+        message.delete();
+        var embed = new Discord.RichEmbed()
             .setColor("RANDOM")
-            .setTitle('Votação finalizada')
-            .addField(`${message.content.split(" ").splice(1).join(" ")}`, `👍 ${agreeCount-1} \n 👎 ${disagreeCount}`)
-            .setFooter(`Enquete criada por ${message.author.username}`)
+            .setTitle('Votação iniciada:')
+            .setDescription(args.slice(0).join(' '))
+            .setFooter(`Enquete criada por ${message.author.username}`, message.author.displayAvatarURL)
             .setTimestamp()
-        await message.channel.send(results);
-    })
+        message.channel.send(embed).then(votacao => {
+
+            setTimeout(() => {
+                votacao.react('👍');
+            }, 500);
+            setTimeout(() => {
+                votacao.react('👎');
+            }, 1000);
+            setTimeout(() => {
+                votacao.react('🤷');
+            }, 1500);
+
+            var sim = 0;
+            var nao = 0;
+            var talvez = 0;
+
+            const collector = votacao.createReactionCollector((r, u) => (r.emoji.name === '👍' || r.emoji.name === '👎' || r.emoji.name === '🤷') && u.id !== client.user.id);
+
+            collector.on('collect', r => {
+                switch (r.emoji.name) {
+                    case '👍':
+                        sim = sim + 1
+                        break;
+                    case '👎':
+                        nao = nao + 1
+                        break;
+                    case '🤷':
+                        talvez = talvez + 1
+                        break;
+                }
+            })
+
+            if (votacao.reaction("👍").remove) {
+                sim = sim - 1
+            }
+
+            if (votacao.reaction("👎").remove) {
+                nao = nao - 1
+            }
+
+            if (votacao.reaction("🤷").remove) {
+                talvez = talvez - 1
+            }
+
+            setTimeout(() => {
+                votacao.delete()
+                var embed = new Discord.RichEmbed()
+                    .setColor("RANDOM")
+                    .setTitle('Votação iniciada:')
+                    .addField(`${args.slice(0).join(' ')}`, `**Resultado:**\n👍 **${sim}** votos\n👎 **${nao}** votos\n🤷 **${talvez}** votos `)
+                    .setFooter(`Enquete criada por ${message.author.username}`, message.author.displayAvatarURL)
+                    .setTimestamp()
+                message.channel.send(embed)
+            }, 5 * 60 * 1000);
+
+        })
+
+    } else {
+        message.reply("insira um texto para a enquete.");
+    }
+
 }
 
 exports.help = {
