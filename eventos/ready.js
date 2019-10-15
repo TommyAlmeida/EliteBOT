@@ -1,6 +1,5 @@
 const gameLoop = require('../utils/gameLoop');
 const c = require('../comandos/config.json')
-const INTERVAL = 10 * 1000;
 
 exports.name = 'ready';
 exports.run = (client) => {
