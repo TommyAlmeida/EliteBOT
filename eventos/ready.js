@@ -1,4 +1,5 @@
 const gameLoop = require('../utils/gameLoop');
+const c = require('../comandos/config.json')
 
 exports.name = 'ready';
 exports.run = (client) => {

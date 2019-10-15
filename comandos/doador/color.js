@@ -12,12 +12,27 @@ exports.run = (client, message, args) => {
         roxo: '631974753720336394',
     }
     async function trocarRole(membro, role) {
-        if (membro.roles.has(roles[role])) return message.channel.send('Você já tem essa cor!').then(msg => msg.delete(8000));
+        if (membro.roles.has(roles[role])) return message.reply('você já tem essa cor!').then(msg => msg.delete(8000));
         await membro.removeRoles([roles.azul, roles.vermelho, roles.amarelo, roles.verde, roles.roxo]);
         await membro.addRole(roles[role]);
-        return message.channel.send(`Agora você tem a cor ${role}`).then(msg => msg.delete(8000));
+        return message.reply(`agora você tem a cor ${role}`).then(msg => msg.delete(8000));
     };
+
+    if (!(args[0])) return message.reply('use `!cor lista` para ver a lista de cores.')
+
     switch (args[0]) {
+        default:
+            message.reply('não encontrei essa cor, use `!cor lista` para ver a lista de cores.').then(msg => msg.delete(8000))
+            break;
+        case 'lista':
+            const embed = new Discord.RichEmbed()
+                .setTitle('Lista de cores')
+                .addField('Use `!cor <cor>` para mudar a cor do seu nick.', '» Amarelo \n» Azul \n» Verde \n» Vermelho \n» Roxo')
+                .setColor('RANDOM')
+                .setFooter('O comando de cor é exclusivo para doadores!')
+                .setTimestamp()
+            message.channel.send(embed)
+            break;
         case 'amarelo':
             trocarRole(message.member, 'amarelo');
             break;

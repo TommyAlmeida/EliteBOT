@@ -35,7 +35,6 @@ async function onMessage(client, message) {
 
     const command = getCommand(client, cmd);
     if (command) {
-        message.delete(1000).catch(err => {});
 
         if (cooldown.has(message.author.id)) {
             const timeSinceLastCommand = Date.now() - cooldown.get(message.author.id);

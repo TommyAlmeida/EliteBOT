@@ -1,39 +1,82 @@
-const Discord = require('discord.js');
+const Discord = require('discord.js')
 
-exports.run = async (client, message, args, ops) => {
+exports.run = async (client, message, args) => {
+    let razaou = args.slice(0).join(' ');
 
-    if (!message.member.hasPermission("ADMINISTRATOR")) return message.channel.send(`${message.author}, você não possui permissão para executar esse comando.`).then(msg => msg.delete(8000))
+    if (!message.member.hasPermission(["ADMINISTRATOR"])) return message.reply("você não tem permissão para isso.");
 
-    // Check for input
-    if (!args[0]) return message.channel.send('Uso correto: !enquete <pergunta>');
+    if (!razaou.length < 1) {
 
-    // Create Embed
-    const embed = new Discord.RichEmbed()
-    
-        .setColor("RANDOM") //To change color do .setcolor("#fffff")
-        .setTitle('Votação criada, reaja para votar')
-        .setDescription(args.join(' '))
-        .setFooter(`Enquete criada por ${message.author.username}`)
-        .setTimestamp()
-        client.channels.get(`622291133782818826`).send('<@625528878655340554>').then(msg => msg.delete(5000))
+        message.delete();
+        var embed = new Discord.RichEmbed()
+            .setColor("RANDOM")
+            .setTitle('Votação iniciada:')
+            .setDescription(args.slice(0).join(' '))
+            .setFooter(`Enquete criada por ${message.author.username}`, message.author.displayAvatarURL)
+            .setTimestamp()
+        message.channel.send(embed).then(votacao => {
 
-    let msg = await client.channels.get(`622291133782818826`).send(embed)
+            setTimeout(() => {
+                votacao.react('👍');
+            }, 500);
+            setTimeout(() => {
+                votacao.react('👎');
+            }, 1000);
+            setTimeout(() => {
+                votacao.react('🤷');
+            }, 1500);
 
-        .then(function (msg) {
-            msg.react("👍");
-            msg.react("👎"); // You can only add two reacts
-            message.delete({
-                timeout: 1000
-            });
-        }).catch(function (error) {
-            console.log(error);
-        });
+            var sim = 0;
+            var nao = 0;
+            var talvez = 0;
 
-};
+            const collector = votacao.createReactionCollector((r, u) => (r.emoji.name === '👍' || r.emoji.name === '👎' || r.emoji.name === '🤷') && u.id !== client.user.id);
 
+            collector.on('collect', r => {
+                switch (r.emoji.name) {
+                    case '👍':
+                        sim = sim + 1
+                        break;
+                    case '👎':
+                        nao = nao + 1
+                        break;
+                    case '🤷':
+                        talvez = talvez + 1
+                        break;
+                }
+            })
+
+            if (votacao.reaction("👍").remove) {
+                sim = sim - 1
+            }
+
+            if (votacao.reaction("👎").remove) {
+                nao = nao - 1
+            }
+
+            if (votacao.reaction("🤷").remove) {
+                talvez = talvez - 1
+            }
+
+            setTimeout(() => {
+                votacao.delete()
+                var embed = new Discord.RichEmbed()
+                    .setColor("RANDOM")
+                    .setTitle('Votação iniciada:')
+                    .addField(`${args.slice(0).join(' ')}`, `**Resultado:**\n👍 **${sim}** votos\n👎 **${nao}** votos\n🤷 **${talvez}** votos `)
+                    .setFooter(`Enquete criada por ${message.author.username}`, message.author.displayAvatarURL)
+                    .setTimestamp()
+                message.channel.send(embed)
+            }, 5 * 60 * 1000);
+
+        })
+
+    } else {
+        message.reply("insira um texto para a enquete.");
+    }
+
+}
 
 exports.help = {
-    name: 'enquete',
-    description: 'Cria uma enquete com UP ou DOWN',
-    usage: 'enquete <pergunta>'
+    name: 'enquete'
 };

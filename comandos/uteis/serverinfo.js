@@ -1,6 +1,7 @@
 const Discord = require('discord.js')
 const c = require('../config.json')
 const moment = require ('moment')
+moment.locale('pt-BR');
 exports.run = (client, message, args) => {
 
     const online = client.emojis.get('623185214927142933')
@@ -49,7 +50,7 @@ exports.run = (client, message, args) => {
 
         .addField('Usuários', checkMembers(message.guild), true)
         .addField('Bots', checkBots(message.guild), true)
-        .addField('\n \n 📅 Servidor criado em', moment(message.guild.createdAt).format("D MMMM YYYY, h:mm:ss"))
+        .addField('\n \n 📅 Servidor criado em', moment(message.guild.createdAt).format('LLLL'))
 
     return message.channel.send(serverembed);
 }

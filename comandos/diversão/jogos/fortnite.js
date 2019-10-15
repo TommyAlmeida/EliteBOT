@@ -1,81 +1,61 @@
-const FortClient = require('fortnite')
-const fortnite = new FortClient('../config.json')
+const Discord = module.require('discord.js');
+var fortnite = require('fortnite');
+var request = require('request');
 
-exports.run = (client, message, args) => {
-  let razaou = args.slice(0).join(' ')
-  let razaod = args.slice(1).join(' ')
+exports.run = async (bot, message, args, prefix, con, file) => {
 
-  if (!razaou.length < 1) {
-    var plataformas = ['xbl', 'pc', 'ps4']
-    var plataforma
-
-    if (plataformas.includes(args[0].toLowerCase())) {
-      plataforma = args[0].toLowerCase()
-
-      if (!razaod.length < 1) {
-        fortnite.user(`${args[1]}`, plataforma).then(usuario => {
-          message.channel.sendMessage({
-            'embed': {
-              'color': 'RANDOM',
-              'timestamp': new Date(),
-              'footer': {
-                'icon_url': message.author.displayAvatarURL,
-                'text': message.author.username
-              },
-              'thumbnail': {
-                'url': 'https://i.imgur.com/ZjtLNE9.jpg'
-              },
-              'author': {
-                'name': `${usuario.username}`,
-                'icon_url': message.author.displayAvatarURL
-              },
-              'fields': [{
-                'name': ':notepad_spiral: Username:',
-                'value': `${usuario.username}`,
-                'inline': true
-              },
-              {
-                'name': ':video_game: Plataforma:',
-                'value': `${usuario.platform}`,
-                'inline': true
-              },
-              {
-                'name': ':sunglasses: Solo:',
-                'value': `**Kd:** ${usuario.stats.solo.kd}\n**Pontuação:** ${Number(usuario.stats.solo.score).toLocaleString()}\n**Partidas:** ${Number(usuario.stats.solo.matches).toLocaleString()}\n**Vitórias:** ${Number(usuario.stats.solo.wins).toLocaleString()}`,
-                'inline': true
-              },
-              {
-                'name': ':handshake: Duo:',
-                'value': `**Kd:** ${usuario.stats.duo.kd}\n**Pontuação:** ${Number(usuario.stats.duo.score).toLocaleString()}\n**Partidas:** ${Number(usuario.stats.duo.matches).toLocaleString()}\n**Vitórias:** ${Number(usuario.stats.duo.wins).toLocaleString()}`,
-                'inline': true
-              },
-              {
-                'name': ':fingers_crossed: Squad:',
-                'value': `**Kd:** ${usuario.stats.squad.kd}\n**Pontuação:** ${Number(usuario.stats.squad.score).toLocaleString()}\n**Partidas:** ${Number(usuario.stats.squad.matches).toLocaleString()}\n**Vitórias:** ${Number(usuario.stats.squad.wins).toLocaleString()}`,
-                'inline': true
-              },
-              {
-                'name': ':trophy: Total:',
-                'value': `**Kd:** ${(usuario.stats.solo.kd + usuario.stats.duo.kd + usuario.stats.squad.kd)}\n**Pontuação:** ${Number(usuario.stats.solo.score + usuario.stats.duo.score + usuario.stats.squad.score).toLocaleString()}\n**Partidas:** ${Number(usuario.stats.solo.matches + usuario.stats.duo.matches + usuario.stats.squad.matches).toLocaleString()}\n**Vitórias:** ${Number(usuario.stats.solo.wins + usuario.stats.duo.wins + usuario.stats.squad.wins).toLocaleString()}`,
-                'inline': true
-              }
-              ]
-            }
-          })
-        }).catch(err => {
-          message.channel.sendMessage(':x: **Usuário não encontrado.**')
-        })
-      } else {
-        message.channel.sendMessage(':x: **Diga o username da conta.**')
-      }
-    } else {
-      message.channel.sendMessage(`:x: **Plataforma inválida:** \`${plataformas.join('` **|** `')}\``)
-    }
-  } else {
-    message.channel.sendMessage(':x: **Diga a plataforma da conta.**')
+  var headers = {
+    'TRN-Api-Key': "3d36b586-da6e-4733-b252-77d26aacf2ce"
   }
+
+  var options = {
+    url: `https://api.fortnitetracker.com/v1/profile/` + `pc` + "/" + `${args[0]}`,
+    method: 'GET',
+    headers: headers
+  }
+
+  request(options, function (error, response, body) {
+    var info = JSON.parse(body);
+
+    var LifeTime = "";
+    var Solo = "";
+    var Duo = "";
+    var Squad = "";
+
+    for(var currentStatIndex = 0; currentStatIndex < info.lifeTimeStats.length; currentStatIndex++) {
+        LifeTime += info.lifeTimeStats[currentStatIndex].key + ": " + info.lifeTimeStats[currentStatIndex].value + "\n";
+    }
+
+    for(var STATS in info.stats.p2){
+        Solo += info.stats.p2[STATS].label + ": " + info.stats.p2[STATS].displayValue + "\n";
+    }
+
+    for(var STATS_1 in info.stats.p10){
+        Duo += info.stats.p10[STATS_1].label + ": " + info.stats.p10[STATS_1].displayValue + "\n";
+    }
+
+    for(var STATS_2 in info.stats.p9){
+        Squad += info.stats.p9[STATS_2].label + ": " + info.stats.p9[STATS_2].displayValue + "\n";
+    }
+
+    message.channel.send("```" + "\n" +
+                         "----------------------------------" + "\n" + 
+                         "Nick: " + info.epicUserHandle + "\n" +
+                         "Plataforma: " + info.platformNameLong + "\n" +
+                         "----------LIFETIME STATS----------" + "\n" + 
+                         LifeTime + "\n" +
+
+                         "------------SOLO STATS------------" + "\n" +
+                         Solo + "\n" +
+
+                         "------------DUO STATS-------------" + "\n" +
+                         Duo + "\n" +
+
+                         "------------SQUAD STATS-----------" + "\n" +
+                         Squad + "\n"+ "```");
+})
 }
 
 exports.help = {
-    name: 'fortnite'
+    name: "fortnite"
 }
